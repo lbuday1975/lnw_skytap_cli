@@ -2,15 +2,15 @@ import requests
 import argparse
 import sys
 
-from .compute import vm_power, get_vm_status
+from compute import vm_power, get_vm_status
 
 __version__ = '0.1.0'
 
 from requests.auth import HTTPBasicAuth
 
 GV_CONF_FILE="/opt/cloud/tenants/default/credentials.tfvars"
-GV_USER = ''
-GV_CRED = ''
+GV_USER = ""
+GV_CRED = ""
 
 GV_AVAILABLE_ACTIONS = [
         'vm_start', 'vm_stop',
@@ -51,14 +51,17 @@ def func_pars_args():
 
     checkParameters(LV_ARGS, LV_PARSER)
 
-    if args.version:
+    if LV_ARGS.version:
         print(f"LNW-Soft Infrastructure Connector Azure {__version__}")
-        sys.exit()
-    elif args.action == "vm_start":
-        vm_power(args, "on")
+        sys.exit(1)
+    elif LV_ARGS.action == "vm_start":
+        vm_power(LV_ARGS, "on")
+    elif LV_ARGS.action == "vm_status":
+        print(get_vm_status(LV_ARGS.target, GV_USER, GV_CRED))
 
 
 def func_read_conf_cred(FV_FILE):
+    global GV_CRED
     try:
         count = 0
         LV_CONF = open(FV_FILE, 'r')
@@ -81,6 +84,7 @@ def func_read_conf_cred(FV_FILE):
         exit(2)
 
 def func_read_conf_usr(FV_FILE):
+    global GV_USER
     try:
         count = 0
         LV_CONF = open(FV_FILE, 'r')
@@ -119,8 +123,8 @@ def func_get_status():
 
 
 if __name__ == '__main__':
-    func_pars_args()
     GV_USER = func_read_conf_usr(GV_CONF_FILE)
     GV_CRED = func_read_conf_cred(GV_CONF_FILE)
-    func_get_status()
+    func_pars_args()
+#    func_get_status()
 
