@@ -2,6 +2,8 @@ import requests;
 from requests.auth import HTTPBasicAuth
 
 GV_CONF_FILE="/opt/cloud/tenants/default/main.tfvars"
+GV_USER = ""
+GV_CRED = ""
 
 def func_read_conf():
     try:
@@ -12,9 +14,16 @@ def func_read_conf():
             LV_LINE = LV_CONF.readline()
             if not LV_LINE:
                 break
-            print("Line{}: {}".format(count, LV_LINE.strip()))
-            # print(LV_LINE)
 
+            if str.__contains__(LV_LINE, "="):
+                if str.__contains__(LV_LINE, 'skytap_conn_usr'):
+                    LV_VALUE = LV_LINE.split(sep='=')
+                    GV_USER = LV_VALUE[1].replace(' ', '').replace('\n', '')
+                if str.__contains__(LV_LINE, 'skytap_conn_cred'):
+                    LV_VALUE = LV_LINE.split(sep='=')
+                    GV_CRED = LV_VALUE[1].replace(' ', '').replace('\n', '')
+
+        print(f'User {GV_USER} , passwd: {GV_CRED}')
         LV_CONF.close()
 
     except FileNotFoundError:
