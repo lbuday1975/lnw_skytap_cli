@@ -1,6 +1,27 @@
 import requests;
 from requests.auth import HTTPBasicAuth
 
+GV_CONF_FILE="/opt/cloud/tenants/default/main.tfvars"
+
+def func_read_conf():
+    try:
+        count = 0
+        LV_CONF = open(GV_CONF_FILE, 'r')
+        while True:
+            count += 1
+            LV_LINE = LV_CONF.readline()
+            if not LV_LINE:
+                break
+            print("Line{}: {}".format(count, LV_LINE.strip()))
+            # print(LV_LINE)
+
+        LV_CONF.close()
+
+    except FileNotFoundError:
+        print("Config file not found or not readable. (/opt/cloud/tenants/default/main.tfvars)")
+        exit(2)
+
+
 def func_get_status():
     ##    api_url = "https://10.144.45.42/cloud.skytap.com/v2/configurations/127468724/vms.json?query=vm_name:SAPtest1"
 
@@ -18,5 +39,6 @@ def func_get_status():
 
 
 if __name__ == '__main__':
+    func_read_conf()
     func_get_status()
 
