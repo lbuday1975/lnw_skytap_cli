@@ -106,22 +106,6 @@ def func_read_conf_usr(FV_FILE):
         print("Config file not found or not readable. (/opt/cloud/tenants/default/credentials.tfvars)")
         exit(2)
 
-def func_get_status():
-
-    api_url = "https://cloud.skytap.com/v2/configurations.json"
-
-    print("USR:" + GV_USER)
-    print("PWD:" + GV_CRED)
-    response = requests.get(api_url, auth=HTTPBasicAuth(GV_USER, GV_CRED))
-    print("RC:" + str(response.status_code))
-    LV_RESP=response.json()
-
-    print("RET111:" + str(LV_RESP))
-    print(len(LV_RESP))
-    for x in LV_RESP:
-        print("Item: " + str(x['name']) + " id: " + str(x['id']))
-
-
 if __name__ == '__main__':
     GV_USER = func_read_conf_usr(GV_CONF_FILE)
     GV_CRED = func_read_conf_cred(GV_CONF_FILE)
