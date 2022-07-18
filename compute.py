@@ -1,23 +1,39 @@
+import sys
 
 import requests
 from requests.auth import HTTPBasicAuth
 
 
-def get_vm_status(vm_name, CV_USER, CV_CRED):
+def get_vm_status(CV_VM_NAME, CV_USER, CV_CRED):
     api_url = "https://cloud.skytap.com/v2/configurations.json"
 
     print("USR:" + CV_USER)
     print("PWD:" + CV_CRED)
-    response = requests.get(api_url, auth=HTTPBasicAuth(CV_USER, CV_CRED))
-    print("RC:" + str(response.status_code))
-    LV_RESP=response.json()
+    LV_RESP_ROW1 = requests.get(api_url, auth=HTTPBasicAuth(CV_USER, CV_CRED))
+    LV_RESP1 = LV_RESP_ROW1.json()
+    if LV_RESP_ROW1.status_code != 200:
+        print("ERROR, RestAPI return code:" + str(LV_RESP_ROW1.status_code))
+        print(LV_RESP1)
+        sys.exit(3)
 
-    print("RET111:" + str(LV_RESP))
-    print(len(LV_RESP))
-    for x in LV_RESP:
-        print("Item: " + str(x['name']) + " id: " + str(x['id']))
+    LV_RC='null'
+    for x in LV_RESP1:
+        print("Check ENV " + str(x['name']) + "...")
+        api_url = f"https://cloud.skytap.com/v2/configurations/{str(x['id'])}/vms.json"
+        print("EXEC: " + api_url)
+        LV_RESP_ROW2 = requests.get(api_url, auth=HTTPBasicAuth(CV_USER, CV_CRED))
+        LV_RESP2 = LV_RESP_ROW2.json()
+        if LV_RESP_ROW1.status_code != 200:
+            print("ERROR, RestAPI return code:" + str(LV_RESP_ROW2.status_code))
+            print(LV_RESP2)
+            sys.exit(3)
+        for y in LV_RESP2:
+            #print("Item: " + str(y['name']) + " id: " + str(y['id']))
+            if str.__contains__(str(y['name']), CV_VM_NAME):
+                print("Item: " + str(y['name']) + " id: " + str(y['id']))
+                LV_RC=str(y['runstate'])
 
-    return "ONLINE"
+    return LV_RC
 #    vm = _get_vm(vm_name)
 #    vm_rg = vm.id.split("/")[4]#
 
