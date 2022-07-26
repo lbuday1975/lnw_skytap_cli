@@ -2,11 +2,10 @@ import requests
 import argparse
 import sys
 
-from compute import vm_power, get_vm_status
+from compute import vm_power, get_vm_status, get_vm_status_all
 
 __version__ = '0.1.0'
-
-from requests.auth import HTTPBasicAuth
+GV_DEBUG = False
 
 GV_CONF_FILE="/opt/cloud/tenants/default/credentials.tfvars"
 GV_USER = ""
@@ -14,14 +13,15 @@ GV_CRED = ""
 
 GV_AVAILABLE_ACTIONS = [
         'vm_start', 'vm_stop',
-        'vm_restart', 'vm_status'
+        'vm_restart', 'vm_status', 'vm_status_all'
     ]
 
 GV_REQUIRED_PARAMETERS = {
         "vm_start": ["target"],
         "vm_stop": ["target"],
         "vm_restart": ["target"],
-        "vm_status": ["target"]
+        "vm_status": ["target"],
+        "vm_status_all": []
     }
 
 
@@ -42,7 +42,6 @@ def checkParameters(args, parser):
 
 
 def func_pars_args():
-    print("PARSER")
     LV_PARSER = argparse.ArgumentParser(description=f"LNW-Soft Infrastructure Connector SkyTap {__version__}")
     LV_PARSER.add_argument("--version", action='store_true', help="Show version information")
     LV_PARSER.add_argument("-a", "--action", choices=GV_AVAILABLE_ACTIONS)
@@ -55,9 +54,13 @@ def func_pars_args():
         print(f"LNW-Soft Infrastructure Connector Azure {__version__}")
         sys.exit(1)
     elif LV_ARGS.action == "vm_start":
-        vm_power(LV_ARGS, "on")
+        vm_power(LV_ARGS, GV_USER, GV_CRED, "on")
+    elif LV_ARGS.action == "vm_stop":
+        vm_power(LV_ARGS, GV_USER, GV_CRED, "off")
     elif LV_ARGS.action == "vm_status":
         print(get_vm_status(LV_ARGS.target, GV_USER, GV_CRED))
+    elif LV_ARGS.action == "vm_status_all":
+        exit(get_vm_status_all(GV_USER, GV_CRED))
 
 
 def func_read_conf_cred(FV_FILE):
@@ -75,6 +78,7 @@ def func_read_conf_cred(FV_FILE):
                 if str.__contains__(LV_LINE, 'skytap_conn_cred'):
                     LV_VALUE = LV_LINE.split(sep='=')
                     GV_CRED = LV_VALUE[1].replace(' ', '').replace('\n', '').replace('"', '')
+
 
         LV_CONF.close()
         return GV_CRED
@@ -107,6 +111,8 @@ def func_read_conf_usr(FV_FILE):
         exit(2)
 
 if __name__ == '__main__':
+    print('LNW SkyTap connector - v' + __version__)
+    print()
     GV_USER = func_read_conf_usr(GV_CONF_FILE)
     GV_CRED = func_read_conf_cred(GV_CONF_FILE)
     func_pars_args()
