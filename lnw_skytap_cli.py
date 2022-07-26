@@ -1,28 +1,27 @@
-import requests
 import argparse
 import sys
 
 from compute import vm_power, get_vm_status, get_vm_status_all
 
-__version__ = '0.1.0'
+__version__ = '1.0.1'
 GV_DEBUG = False
 
-GV_CONF_FILE="/opt/cloud/tenants/default/credentials.tfvars"
+GV_CONF_FILE = "/opt/cloud/tenants/default/credentials.tfvars"
 GV_USER = ""
 GV_CRED = ""
 
 GV_AVAILABLE_ACTIONS = [
-        'vm_start', 'vm_stop',
-        'vm_restart', 'vm_status', 'vm_status_all'
-    ]
+    'vm_start', 'vm_stop',
+    'vm_restart', 'vm_status', 'vm_status_all'
+]
 
 GV_REQUIRED_PARAMETERS = {
-        "vm_start": ["target"],
-        "vm_stop": ["target"],
-        "vm_restart": ["target"],
-        "vm_status": ["target"],
-        "vm_status_all": []
-    }
+    "vm_start": ["target"],
+    "vm_stop": ["target"],
+    "vm_restart": ["target"],
+    "vm_status": ["target"],
+    "vm_status_all": []
+}
 
 
 def checkParameters(args, parser):
@@ -37,8 +36,9 @@ def checkParameters(args, parser):
 
     if args.action in GV_REQUIRED_PARAMETERS:
         for parameter in GV_REQUIRED_PARAMETERS[args.action]:
-            if not parameter in args or getattr(args,parameter) in [None, ""]:
-                raise parser.error(f"Parameter --{parameter} is required for action '{args.action}', but has not been provided.")
+            if not parameter in args or getattr(args, parameter) in [None, ""]:
+                raise parser.error(
+                    f"Parameter --{parameter} is required for action '{args.action}', but has not been provided.")
 
 
 def func_pars_args():
@@ -60,7 +60,7 @@ def func_pars_args():
     elif LV_ARGS.action == "vm_status":
         print(get_vm_status(LV_ARGS.target, GV_USER, GV_CRED))
     elif LV_ARGS.action == "vm_status_all":
-        exit(get_vm_status_all(GV_USER, GV_CRED))
+        sys.exit(get_vm_status_all(GV_USER, GV_CRED))
 
 
 def func_read_conf_cred(FV_FILE):
@@ -79,13 +79,13 @@ def func_read_conf_cred(FV_FILE):
                     LV_VALUE = LV_LINE.split(sep='=')
                     GV_CRED = LV_VALUE[1].replace(' ', '').replace('\n', '').replace('"', '')
 
-
         LV_CONF.close()
         return GV_CRED
 
     except FileNotFoundError:
         print("Config file not found or not readable. (/opt/cloud/tenants/default/credentials.tfvars)")
-        exit(2)
+        sys.exit(2)
+
 
 def func_read_conf_usr(FV_FILE):
     global GV_USER
@@ -108,7 +108,8 @@ def func_read_conf_usr(FV_FILE):
 
     except FileNotFoundError:
         print("Config file not found or not readable. (/opt/cloud/tenants/default/credentials.tfvars)")
-        exit(2)
+        sys.exit(2)
+
 
 if __name__ == '__main__':
     print('LNW SkyTap connector - v' + __version__)
@@ -117,4 +118,3 @@ if __name__ == '__main__':
     GV_CRED = func_read_conf_cred(GV_CONF_FILE)
     func_pars_args()
 #    func_get_status()
-

@@ -2,7 +2,7 @@ import sys
 
 import requests
 from requests.auth import HTTPBasicAuth
-LV_DEBUG = True
+LV_DEBUG = False
 
 def get_vm_status_all(CV_USER, CV_CRED):
     api_url = "https://cloud.skytap.com/v2/configurations.json"
@@ -69,7 +69,7 @@ def vm_power(CV_ARGS, CV_USER, CV_CRED, CV_TGT_STATE):
         if LV_DEBUG: print('... status: ' + LV_VM[2] + " : try to start...")
         if LV_VM[2].lower() != 'stopped':
             print('ERROR: vm power state is not stopped (' + LV_VM[2] + ')')
-            exit(6)
+            sys.exit(6)
 
         api_url = f"https://cloud.skytap.com/v2/configurations/{LV_VM[0]}/vms/{LV_VM[1]}.json?runstate=running"
 
